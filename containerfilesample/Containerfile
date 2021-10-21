@@ -1,0 +1,21 @@
+FROM ubi8/ubi:8.3
+MAINTAINER ragul ragulraj.t@ibm.com
+ENV PORT=8080
+RUN yum install -y httpd && \
+    yum clean all
+RUN sed -ri -e "/^Listen 80/c\Listen ${PORT}" /etc/httpd/conf/httpd.conf && \
+    chown -R apache:apache /etc/httpd/logs/ && \
+    chown -R apache:apache /run/httpd/
+USER apache
+# Permission archiveremote.tar is ?, Is it extracted?
+ADD https://raw.githubusercontent.com/ragulraj/test/master/archiveremote.tar /tmp/test/remoteadd/
+# Permission of tes.tar ? Is it extracted?
+ADD https://raw.githubusercontent.com/ragulraj/test/master/archiveremote.tar /tmp/test/remoteadd/addfile.tar
+ADD archivelocal.tar /tmp/test/localadd/
+COPY archivelocal.tar /tmp/test/localcopy/
+ADD test.zip /tmp/test/localadd/addfile.zip
+COPY test.zip /tmp/test/localcopy/
+COPY test.zip /tmp/test/localcopy/copyfile.zip
+EXPOSE ${PORT}
+COPY src/ /var/www/html/
+CMD ["httpd", "-D", "FOREGROUND"]
